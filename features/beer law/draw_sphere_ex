@@ -1,0 +1,85 @@
+from OpenGL.GL import *
+from OpenGL.GLU import *
+from OpenGL.GLUT import *
+
+def setLight():
+    light_position = [1.0, 1.0, -1.0, 1.0]
+    light_ambient  = [0.2, 0.2, 0.2, 1.0]
+    light_diffuse  = [1.0, 1.0, 1.0, 1.0]
+    light_specular = [1.0, 1.0, 1.0, 1.0]
+
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position)
+    glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient)
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse)
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular)
+
+    glEnable(GL_LIGHT0)
+    glEnable(GL_LIGHTING)
+    glEnable(GL_DEPTH_TEST)
+
+def setMatirial(mat_diffuse,mat_shininess):
+    mat_specular = [0.0, 0.0, 0.0, 1.0]
+    mat_emission = [0.0, 0.0, 0.0, 1.0]
+
+    glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_diffuse)
+    glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular)
+    glMaterialfv(GL_FRONT, GL_EMISSION,  mat_emission)
+    glMaterialf (GL_FRONT, GL_SHININESS, mat_shininess)
+
+def myDisplay():
+    #定义一些材质颜色
+    red_color = [1.0, 0.0, 0.0, 1.0]
+    green_color = [0.0, 1.0, 0.0, 0.3333]
+    blue_color = [0.0, 0.0, 1.0, 0.5]
+
+    #清除屏幕
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+    #启动混合并设置混合因子
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
+    #设置光源
+    setLight()
+
+    #以(0, 0, 0.5)为中心，绘制一个半径为.3的不透明红色球体（离观察者最远）
+    setMatirial(red_color, 30.0)
+    glPushMatrix()
+    glTranslatef(0.0, 0.0, 0.5)
+    glutSolidSphere(0.3, 30, 30)
+    glPopMatrix()
+
+    #下面将绘制半透明物体了，因此将深度缓冲设置为只读
+    glDepthMask(GL_FALSE)
+
+    # 以(0.2, 0, -0.5)为中心，绘制一个半径为.2的半透明蓝色球体（离观察者最近）
+    setMatirial(blue_color, 30.0)
+    glPushMatrix()
+    glTranslatef(0.2, 0.0, -0.5)
+    glutSolidSphere(0.2, 30, 30)
+    glPopMatrix()
+
+    # 以(0.1, 0, 0)为中心，绘制一个半径为.15的半透明绿色球体（在前两个球体之间）
+    setMatirial(green_color, 30.0)
+    glPushMatrix()
+    glTranslatef(0.1, 0, 0)
+    glutSolidSphere(0.15, 30, 30)
+    glPopMatrix()
+
+    # 完成半透明物体的绘制，将深度缓冲区恢复为可读可写的形式
+    glDepthMask(GL_TRUE)
+
+    glutSwapBuffers()
+
+#使用glut初始化OpenGL
+glutInit()
+#显示模式:GLUT_SINGLE无缓冲直接显示|GLUT_RGBA采用RGB(A非alpha)
+glutInitDisplayMode(GLUT_SINGLE | GLUT_RGBA)
+#窗口位置及大小-生成
+glutInitWindowPosition(0,0)
+glutInitWindowSize(400,400)
+glutCreateWindow("first")
+#调用函数绘制图像
+glutDisplayFunc(myDisplay)
+#主循环
+glutMainLoop()
